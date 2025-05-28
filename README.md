@@ -1,6 +1,6 @@
 Drone Navigation Game
 
-Welcome to the **Drone Navigation Game, a fun and interactive game where you guide a drone through a grid to reach its target while avoiding obstacles. Designed using Python's `turtle` module, this game is perfect for beginner coders exploring simple graphics and game mechanics.
+Welcome to the Drone Navigation Game, a fun and interactive game where you guide a drone through a grid to reach its target while avoiding obstacles. Designed using Python's `turtle` module, this game is perfect for beginner coders exploring simple graphics and game mechanics.
 
 Features
 
