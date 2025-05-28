@@ -1,112 +1,132 @@
-Here’s a unique and professional README file tailored for your drone game project.
+import turtle
+import random
 
----
+# Screen setup
+screen = turtle.Screen()
+screen.title("Drone Navigation Game")
+screen.bgcolor("lightblue")
+screen.setup(width=600, height=600)
 
-# **Drone Navigation Game**
+# Grid properties
+GRID_SIZE = 5
+CELL_SIZE = 100
 
-Welcome to the **Drone Navigation Game**, a fun and interactive game where you guide a drone through a grid to reach its target while avoiding obstacles. Designed using Python's `turtle` module, this game is perfect for beginner coders exploring simple graphics and game mechanics.
+# Create grid lines
+def draw_grid():
+    turtle.speed(0)
+    turtle.color("black")
+    for i in range(GRID_SIZE + 1):
+        # Horizontal lines
+        turtle.penup()
+        turtle.goto(-GRID_SIZE * CELL_SIZE // 2, -GRID_SIZE * CELL_SIZE // 2 + i * CELL_SIZE)
+        turtle.pendown()
+        turtle.forward(GRID_SIZE * CELL_SIZE)
 
----
+    turtle.right(90)
+    for i in range(GRID_SIZE + 1):
+        # Vertical lines
+        turtle.penup()
+        turtle.goto(-GRID_SIZE * CELL_SIZE // 2 + i * CELL_SIZE, GRID_SIZE * CELL_SIZE // 2)
+        turtle.pendown()
+        turtle.forward(GRID_SIZE * CELL_SIZE)
 
-## **Features**
+# Create a game object
+def create_object(color, shape):
+    obj = turtle.Turtle()
+    obj.speed(0)
+    obj.shape(shape)
+    obj.color(color)
+    obj.penup()
+    return obj
 
-* A dynamic 5x5 grid-based gameboard.
-* Interactive drone navigation using keyboard arrow keys.
-* Randomly positioned target and obstacles after each successful target reach.
-* Simple and engaging gameplay with a clean user interface.
-* Built entirely with Python's built-in libraries, making it lightweight and easy to run.
+# Positioning helper
+def position_object(obj, position):
+    x = -GRID_SIZE * CELL_SIZE // 2 + position[1] * CELL_SIZE + CELL_SIZE // 2
+    y = GRID_SIZE * CELL_SIZE // 2 - position[0] * CELL_SIZE - CELL_SIZE // 2
+    obj.goto(x, y)
 
----
+# Initialize game objects
+def initialize_game():
+    global drone, target, obstacles, drone_position, target_position, obstacle_positions
+    drone = create_object("blue", "square")
+    target = create_object("green", "circle")
+    obstacles = []
 
-## **How to Play**
+    reset_positions()
 
-1. Use the arrow keys (`Up`, `Down`, `Left`, `Right`) to move the drone.
-2. Navigate the drone to the green circle (`Target`) while avoiding red triangles (`Obstacles`).
-3. When the drone reaches the target:
+# Reset positions of target and obstacles
+def reset_positions():
+    global drone_position, target_position, obstacle_positions, obstacles
 
-   * The target's position changes randomly.
-   * Obstacles are cleared and repositioned randomly on the grid.
-4. Avoid hitting the obstacles! If you do, the game ends.
+    # Clear old obstacles
+    for obstacle in obstacles:
+        obstacle.hideturtle()
+    obstacles.clear()
 
----
+    # Place the drone
+    drone_position = [GRID_SIZE - 1, 0]
+    position_object(drone, drone_position)
 
-## **Setup Instructions**
+    # Place the target
+    while True:
+        target_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
+        if target_position != drone_position:
+            break
+    position_object(target, target_position)
 
-### **Prerequisites**
+    # Place obstacles
+    obstacle_positions = []
+    for _ in range(GRID_SIZE):
+        while True:
+            obstacle_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
+            if obstacle_position not in [drone_position, target_position] and obstacle_position not in obstacle_positions:
+                obstacle_positions.append(obstacle_position)
+                obstacle = create_object("red", "triangle")
+                position_object(obstacle, obstacle_position)
+                obstacles.append(obstacle)
+                break
 
-* Python 3.x installed on your system.
+# Handle drone movement
+def move_drone(dx, dy):
+    global drone_position
 
-### **Installation**
+    new_position = [drone_position[0] + dx, drone_position[1] + dy]
 
-1. Clone this repository to your local machine:
+    # Check boundaries
+    if new_position[0] < 0 or new_position[0] >= GRID_SIZE or new_position[1] < 0 or new_position[1] >= GRID_SIZE:
+        return
 
-   ```bash
-   git clone https://github.com/yourusername/drone-navigation-game.git
-   ```
-2. Navigate to the project directory:
+    # Check obstacles
+    if new_position in obstacle_positions:
+        print("You hit an obstacle! Game Over.")
+        turtle.done()
+        return
 
-   ```bash
-   cd drone-navigation-game
-   ```
-3. Run the game:
+    # Move drone
+    drone_position = new_position
+    position_object(drone, drone_position)
 
-   ```bash
-   python drone_game.py
-   ```
+    # Check if target is reached
+    if drone_position == target_position:
+        print("You reached the target! Repositioning target and obstacles...")
+        reset_positions()
 
----
+# Bind keyboard controls
+def bind_keys():
+    screen.listen()
+    screen.onkey(lambda: move_drone(-1, 0), "Up")    # Move up
+    screen.onkey(lambda: move_drone(1, 0), "Down")   # Move down
+    screen.onkey(lambda: move_drone(0, -1), "Left")  # Move left
+    screen.onkey(lambda: move_drone(0, 1), "Right")  # Move right
 
-## **Demo**
+# Main function
+def main():
+    draw_grid()
+    initialize_game()
+    bind_keys()
+    turtle.mainloop()
 
-### **Gameplay Example**
+# Run the game
+main()
 
-![Game Screenshot](path_to_screenshot_or_gif)
-
-> Navigate the drone through a maze of obstacles and reach your goal!
-
----
-
-## **Code Highlights**
-
-1. **Grid Creation**
-   The grid is dynamically drawn using the `turtle` module, ensuring scalability and reusability.
-
-2. **Randomized Challenges**
-
-   * The target (`green circle`) and obstacles (`red triangles`) reposition dynamically after each success, keeping the gameplay fresh.
-
-3. **Keyboard Controls**
-   Player inputs are seamlessly captured via Python's `onkey` event bindings.
-
----
-
-## **Future Enhancements**
-
-* Add a scoring system to track successful attempts.
-* Include a timer to increase gameplay intensity.
-* Multiple levels with increasing grid size and obstacles.
-* Dynamic messages for win/lose scenarios displayed on-screen.
-
----
-
-## **Contributing**
-
-Contributions are welcome! If you have ideas for new features or optimizations, feel free to fork the repository, make changes, and submit a pull request.
-
----
-
-## **License**
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## **Acknowledgments**
-
-* Built using the **Python Turtle Module**.
-* Inspired by grid-based logic puzzles and drone navigation challenges.
-
----
-
-Feel free to modify the placeholders like `https://github.com/yourusername` and `path_to_screenshot_or_gif` with your actual GitHub username and appropriate assets. Let me know if you'd like further customization or help with publishing!
 
